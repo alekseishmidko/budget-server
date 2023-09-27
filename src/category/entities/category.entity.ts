@@ -11,17 +11,21 @@ import {
   OneToMany,
 } from 'typeorm';
 
-Entity();
+@Entity()
 export class Category {
   @PrimaryGeneratedColumn({ name: 'category_id' })
   id: number;
+  //
   @Column()
   title: string;
+  //
   @ManyToOne(() => User, (user) => user.categories)
   @JoinColumn({ name: 'user_id' })
   user: User;
+  //
   @OneToMany(() => Transaction, (transaction) => transaction.category)
   transactions: Transaction[];
+  //
   @CreateDateColumn()
   createdAt: Date;
   @UpdateDateColumn()

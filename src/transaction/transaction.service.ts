@@ -22,19 +22,58 @@ export class TransactionService {
     if (!newTransaction) throw new BadRequestException('Something went wrong');
     return await this.transactionRepository.save(newTransaction);
   }
-  findAll() {
-    return `This action returns all transaction`;
+  async findAll(id: number) {
+    const transactions = await this.transactionRepository.find({
+      where: {
+        user: { id },
+      },
+      order: { createdAt: 'DESC' },
+    });
+    return transactions;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
+  async findOne(id: number) {
+    const transaction = await this.transactionRepository.findOne({
+      where: { id },
+      relations: { user: true, category: true },
+    });
+    console.log(id, 'id');
+    if (!transaction) throw new BadRequestException('Dont find a transaction');
+    return transaction;
   }
 
-  update(id: number, updateTransactionDto: UpdateTransactionDto) {
-    return `This action updates a #${id} transaction`;
+  async update(id: number, updateTransactionDto: UpdateTransactionDto) {
+    console.log(id, 'id');
+    const transaction = await this.transactionRepository.findOne({
+      where: { id },
+    });
+    if (!transaction) throw new BadRequestException('Dont find a transaction');
+    return await this.transactionRepository.update(id, updateTransactionDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} transaction`;
+  async remove(id: number) {
+    const transaction = await this.transactionRepository.findOne({
+      where: { id },
+    });
+    if (!transaction) throw new BadRequestException('Dont find a transaction');
+    return await this.transactionRepository.delete(id);
+  }
+  async findAllWithPagination(id: number, page: number, limit: number) {
+    const transactions = await this.transactionRepository.find({
+      where: { id },
+      relations: { category: true, user: true },
+      order: { createdAt: 'DESC' },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+    return transactions;
+  }
+
+  async findAllByType(id: number, type: string) {
+    const transactions = await this.transactionRepository.find({
+      where: { user: { id }, type },
+    });
+    const total = transactions.reduce((acc, item) => acc + item.amount, 0);
+    return total;
   }
 }

@@ -16,12 +16,15 @@ export class AuthorGuard implements CanActivate {
     // доступ к реквесту
     const request = context.switchToHttp().getRequest();
     const { id, type } = request.params;
+    console.log(id, type);
     let entity;
     switch (type) {
       case 'transaction':
         entity = await this.transactionService.findOne(id);
+        break;
       case 'category':
         entity = await this.categoryService.findOne(id);
+
         break;
 
       default:
@@ -29,6 +32,8 @@ export class AuthorGuard implements CanActivate {
     }
     const user = request.user;
     if (entity && user && entity.user.id === user.id) {
+      console.log(type);
+
       return true;
     }
     return false;

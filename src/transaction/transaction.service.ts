@@ -27,6 +27,7 @@ export class TransactionService {
       where: {
         user: { id },
       },
+      relations: { category: true },
       order: { createdAt: 'DESC' },
     });
     return transactions;
@@ -37,7 +38,7 @@ export class TransactionService {
       where: { id },
       relations: { user: true, category: true },
     });
-    console.log(id, 'id');
+    console.log(transaction, 'transaction');
     if (!transaction) throw new BadRequestException('Dont find a transaction');
     return transaction;
   }
@@ -55,17 +56,20 @@ export class TransactionService {
     const transaction = await this.transactionRepository.findOne({
       where: { id },
     });
+    console.log(transaction, 'transaction1', id);
     if (!transaction) throw new BadRequestException('Dont find a transaction');
     return await this.transactionRepository.delete(id);
   }
   async findAllWithPagination(id: number, page: number, limit: number) {
+    console.log('object');
     const transactions = await this.transactionRepository.find({
-      where: { id },
+      where: { user: { id } },
       relations: { category: true, user: true },
       order: { createdAt: 'DESC' },
       take: limit,
       skip: (page - 1) * limit,
     });
+    console.log((page - 1) * limit, typeof ((page - 1) * limit));
     return transactions;
   }
 
